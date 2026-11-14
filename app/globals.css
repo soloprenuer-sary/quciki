@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --ink: #0f172a;
+  --muted: #5b6678;
+  --line: #e3e8ef;
+  --brand: #0f766e;
+  --brand-strong: #0b5d57;
+  --brand-ink: #ffffff;
+  --brand-soft: #d9f6f1;
+  --accent: #f59e0b;
+  --good: #15803d;
+  --bad: #b91c1c;
+  --shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 8px 24px rgb(15 23 42 / 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0b1220;
+    --surface: #111a2b;
+    --ink: #e6ebf3;
+    --muted: #9aa7bb;
+    --line: #223049;
+    --brand: #2dd4bf;
+    --brand-strong: #5eead4;
+    --brand-ink: #04302c;
+    --brand-soft: #0f2f2c;
+    --accent: #fbbf24;
+    --good: #4ade80;
+    --bad: #f87171;
+    --shadow: none;
   }
 }
 
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-good: var(--good);
+  --color-bad: var(--bad);
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --shadow-card: var(--shadow);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Prose used on content pages (privacy, guides, calculator explanations) */
+.prose-pc h2 {
+  font-size: 1.5rem;
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 2rem 0 0.75rem;
+}
+.prose-pc h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.5rem;
+}
+.prose-pc p {
+  margin: 0.75rem 0;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.prose-pc ul,
+.prose-pc ol {
+  margin: 0.75rem 0 0.75rem 1.25rem;
+  line-height: 1.75;
+}
+.prose-pc ul {
+  list-style: disc;
+}
+.prose-pc ol {
+  list-style: decimal;
+}
+.prose-pc li {
+  margin: 0.25rem 0;
+}
+.prose-pc a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-pc code,
+.formula {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+input[type="range"] {
+  accent-color: var(--brand);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }

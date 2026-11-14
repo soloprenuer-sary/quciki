@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quciki
 
-## Getting Started
+Next.js 16 + Tailwind 4 + Supabase real estate calculator site, built to be SEO-friendly and AdSense-ready.
 
-First, run the development server:
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # fill in values
+npm run dev                  # http://localhost:3000
+npm run build && npm start   # production
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Supabase setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Create a project at supabase.com.
+2. Run `supabase/schema.sql` in the SQL editor (creates `subscribers`, `saved_estimates`, `contact_messages` with insert-only RLS).
+3. Put the project URL and anon key in `.env.local`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Without these variables the site still works; the save/subscribe/contact forms show "not configured yet".
 
-## Learn More
+## Admin (blog, SEO, calculator text, redirects, settings)
 
-To learn more about Next.js, take a look at the following resources:
+The admin lives at `/admin`. It is built into this site and uses your Supabase project for sign-in and storage.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+One-time setup:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Run `supabase/schema.sql`, then `supabase/admin.sql` in the Supabase SQL editor.
+2. Supabase Dashboard > Authentication > Providers > Email: **turn off "Allow new users to sign up"**.
+3. Authentication > Users > **Add user** with your email and a strong password.
+4. In the SQL editor run: `insert into public.admin_users (email) values ('you@example.com');`
+5. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to `.env.local`, restart, and open `/admin`.
 
-## Deploy on Vercel
+What you can manage:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Area | What it does |
+| --- | --- |
+| Guides | Write, draft, schedule and publish guides in Markdown with live preview and image upload. Import the built-in guides to edit them. |
+| SEO | Override title, meta description, canonical, social image and noindex for any page, with a search-result preview and length counters. |
+| Calculator text | Edit the intro, steps, formulas text, worked example, tips and FAQs. The calculator math stays in code. |
+| Redirects | Add 301/307 redirects without redeploying (cached for up to a minute). |
+| Media | Upload images (PNG, JPG, WebP, GIF, up to 5 MB). |
+| Settings | AdSense publisher and ad unit IDs, Search Console verification code, contact email. |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+How it stays safe:
+
+- Only emails in `admin_users` can write. This is enforced by database Row Level Security, not only by the app, and every server action re-checks it.
+- The public site reads only published content. Drafts and future-dated guides are invisible to visitors.
+- Guide bodies are Markdown. Raw HTML is ignored, and `javascript:` and other unsafe links are blocked.
+- `/admin` is `noindex`, disallowed in `robots.txt`, and uncached.
+- `site_settings` is publicly readable, so never store secrets there.
+
+How content flows: built-in content lives in code; anything saved in the admin overrides it. Public pages are statically generated and refresh immediately when you save, and scheduled guides appear within an hour.
+
+## Structure
+
+| Path | Purpose |
+| --- | --- |
+| `lib/calc/engine.ts` | All calculator inputs and math (one place per calculator) |
+| `lib/calculators.ts` | SEO copy per calculator: intro, steps, formulas, example, FAQs |
+| `lib/guides.ts` | Guide articles |
+| `app/calculators/[slug]` | Statically generated calculator pages (metadata, JSON-LD, content) |
+| `components/CalculatorClient.tsx` | Generic interactive UI driven by the engine |
+| `app/api/*` | Supabase-backed forms |
+
+## Add a calculator
+
+1. Add a `CalcDef` to `lib/calc/engine.ts` and register it in `CALCS`.
+2. Add its metadata and content to `CALCULATORS` in `lib/calculators.ts` (same slug).
+3. It gets a page, sitemap entry and links automatically.
+
+## AdSense checklist
+
+- Deploy to your own domain and set `NEXT_PUBLIC_SITE_URL`.
+- Keep the About, Contact, Privacy, Terms and Disclaimer pages live.
+- Apply in AdSense, then set `NEXT_PUBLIC_ADSENSE_CLIENT` and the slot IDs after approval (the script, `ads.txt` and ad units switch on automatically).
+- For EEA/UK traffic, add a Google-certified consent management platform.
+- Publish more original guides over time; thin sites get rejected.
