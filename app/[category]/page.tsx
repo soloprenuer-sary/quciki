@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CATEGORIES, categoryBySlug } from "@/lib/categories";
+import { content, getAllTools, getCategory, getSiteInfo } from "@/lib/content";
+import { SITE_ENTRY } from "@/lib/content/entries";
 import { toolPath } from "@/lib/calculators";
-import { getAllGuides, getAllTools } from "@/lib/cms";
+import { getAllGuides } from "@/lib/cms";
 import { withSeo } from "@/lib/seo";
-import { SITE, abs } from "@/lib/site";
+import { abs } from "@/lib/site";
 import { JsonLd } from "@/components/JsonLd";
 
 // Unknown categories return a real HTTP 404.
@@ -18,7 +20,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/[category]">): Promise<Metadata> {
   const { category } = await params;
-  const cat = categoryBySlug(category);
+  const cat = categoryBySlug(category); // search title and description come from code or the SEO box
   if (!cat) return {};
   return withSeo(`/${cat.slug}`, {
     title: cat.metaTitle,
@@ -30,8 +32,10 @@ export async function generateMetadata({ params }: PageProps<"/[category]">): Pr
 
 export default async function CategoryPage({ params }: PageProps<"/[category]">) {
   const { category } = await params;
-  const cat = categoryBySlug(category);
+  const cat = await getCategory(category);
   if (!cat) notFound();
+  const site = await content(SITE_ENTRY);
+  const info = await getSiteInfo();
 
   const tools = (await getAllTools()).filter((c) => c.category === cat.slug);
   const guides = (await getAllGuides()).filter((g) => g.category === cat.slug);
@@ -47,7 +51,7 @@ export default async function CategoryPage({ params }: PageProps<"/[category]">)
               name: cat.name,
               description: cat.metaDescription,
               url: abs(`/${cat.slug}`),
-              isPartOf: { "@type": "WebSite", name: SITE.name, url: abs("/") },
+              isPartOf: { "@type": "WebSite", name: info.name, url: abs("/") },
             },
             {
               "@type": "ItemList",
@@ -56,7 +60,7 @@ export default async function CategoryPage({ params }: PageProps<"/[category]">)
             {
               "@type": "BreadcrumbList",
               itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: abs("/") },
+                { "@type": "ListItem", position: 1, name: site.homeLabel, item: abs("/") },
                 { "@type": "ListItem", position: 2, name: cat.short, item: abs(`/${cat.slug}`) },
               ],
             },
@@ -64,7 +68,7 @@ export default async function CategoryPage({ params }: PageProps<"/[category]">)
         }}
       />
       <nav aria-label="Breadcrumb" className="mb-2 text-sm text-muted">
-        <Link href="/" className="hover:text-brand">Home</Link> / {cat.short}
+        <Link href="/" className="hover:text-brand">{site.homeLabel}</Link> / {cat.short}
       </nav>
       <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">{cat.name}</h1>
       <p className="mt-2 max-w-2xl text-lg text-muted">{cat.tagline}</p>
@@ -85,7 +89,7 @@ export default async function CategoryPage({ params }: PageProps<"/[category]">)
                 <Link key={c.slug} href={toolPath(c)} className="rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:border-brand">
                   <h3 className="text-lg font-bold">{c.name}</h3>
                   <p className="mt-1 text-sm text-muted">{c.tagline}</p>
-                  <span className="mt-4 inline-block text-sm font-semibold text-brand">Open →</span>
+                  <span className="mt-4 inline-block text-sm font-semibold text-brand">{site.openLabel}</span>
                 </Link>
               ))}
             </div>

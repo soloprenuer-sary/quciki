@@ -1,6 +1,6 @@
 # Quciki
 
-Next.js 16 + Tailwind 4 calculator site (WordPress content backend, Supabase for forms), built to be SEO-friendly and AdSense-ready.
+Next.js 16 + Tailwind 4 calculator site (WordPress content backend), built to be SEO-friendly and AdSense-ready.
 
 ## Run it
 
@@ -11,43 +11,40 @@ npm run dev                  # http://localhost:3000
 npm run build && npm start   # production
 ```
 
-## Supabase setup
-
-1. Create a project at supabase.com.
-2. Run `supabase/schema.sql` in the SQL editor (creates `subscribers`, `saved_estimates`, `contact_messages` with insert-only RLS).
-3. Put the project URL and anon key in `.env.local`.
-
-Without these variables the site still works; the save/subscribe/contact forms show "not configured yet".
-
 ## Admin: WordPress is the backend
 
-Content is managed in WordPress and published to this site through one JSON endpoint. The site (Next.js on Vercel) stays fast and static. If WordPress is unreachable, the site keeps serving its built-in content.
+Every word, link and menu on the site is edited in WordPress and published to this site (Next.js on Vercel). The site stays fast and static. If WordPress is unreachable, pages already built keep working.
 
 One-time setup (full steps in `wordpress/README.md`):
 
-1. Install WordPress on any host and upload `wordpress/quciki-headless.zip` (Plugins > Add New > Upload), then activate it.
-2. In WordPress open **Quciki > Settings**. Set the Website URL and a Refresh secret (16+ characters).
-3. In Vercel add `WORDPRESS_URL` (your WordPress address) and `REVALIDATE_SECRET` (the same secret), then redeploy.
+1. WordPress at `https://tool.akrinity.in` (Hostinger). Upload `wordpress/quciki-headless.zip` (Plugins > Add New > Upload) and activate it. Permalinks: anything but "Plain".
+2. WordPress > **Quciki > Settings**: set the Website URL (your Vercel site) and a shared secret (16+ characters).
+3. Vercel environment variables: `WORDPRESS_URL=https://tool.akrinity.in` and `REVALIDATE_SECRET` (the same secret). Redeploy.
 
-What you manage in WordPress:
+What you manage in WordPress (**Quciki** menu):
 
-| Area | What it does |
+| Menu | What it does |
 | --- | --- |
-| Guides | Write in the block editor. Publish, schedule or draft. Category, related calculator, excerpt as description, featured image. |
-| Calculator text | Tagline, intro, steps, formulas text, worked example, tips and FAQs. The calculator maths stays in code. |
-| Legal pages | Privacy Policy, Terms and Disclaimer, with a reviewer name and review date shown on the page. |
-| SEO overrides | Title, description, canonical, social image and noindex for any page. Guides and legal pages have their own SEO box. |
-| Redirects | Published = on, Draft = off. Applied within about a minute. |
-| Settings | AdSense IDs, Search Console code, contact email. |
+| Pages and text | Site-wide text, Home, About, Contact, index pages, category pages, every calculator page (text, FAQs, input labels and units), Privacy, Terms and Disclaimer. Draft, preview on the site, publish, history. |
+| Guides | Block editor, scheduling, featured image. |
+| Menus | Header menu and the two footer columns (WordPress Menus screen). |
+| Redirects | Published = on, Draft = off. |
+| Messages, Subscribers, Saved estimates | Everything visitors submit. Status and notes on messages, CSV export of subscribers. |
+| Settings | Website connection, AdSense IDs, Search Console code, contact email, review cycle. |
 
-How it stays safe:
+How publishing works: **Save draft** keeps changes private, **Save and preview on site** shows them on the real website (only for you), **Publish** sends them live in a few seconds without a rebuild. Legal pages cannot be published until a reviewer has signed them off.
 
-- Everything from WordPress is validated and HTML is sanitized on the site (scripts, event handlers, iframes and `javascript:` links are removed).
+What stays in code on purpose: calculator maths and input limits, the sentences and numbers a calculator produces from your inputs, the page layout, and the "Advertisement" label on ads (Google requires it).
+
+Safety:
+
+- Everything from WordPress is validated and HTML is sanitized on the site (scripts, event handlers, iframes and `javascript:` links are removed). Bad values fall back to the built-in text.
 - Only published items are sent. Drafts, scheduled and trashed items never leave WordPress.
-- `/api/revalidate` refreshes pages only with the shared secret.
-- Contact messages, subscribers and saved estimates stay in Supabase (`supabase/schema.sql`), not in WordPress.
+- A production build fails if WordPress is configured but cannot be read, so a broken deploy never replaces a good site. Set `QUCIKI_ALLOW_BUILD_FALLBACK=1` to build with the built-in text anyway.
+- `/api/revalidate`, `/api/preview` and form submissions need the shared secret or a short-lived token.
+- Form data (messages, subscribers, estimates) is stored in WordPress, with rate limits and the WordPress personal-data export and erase tools.
 
-When the calculator list changes, run `npm run wp:export` and re-zip the plugin so the WordPress dropdowns stay current.
+When the calculator list or the editable fields change, run `npm run wp:export` and re-zip the plugin.
 
 ## Structure
 
@@ -58,13 +55,14 @@ When the calculator list changes, run `npm run wp:export` and re-zip the plugin 
 | `lib/guides.ts` | Guide articles |
 | `app/calculators/[slug]` | Statically generated calculator pages (metadata, JSON-LD, content) |
 | `components/CalculatorClient.tsx` | Generic interactive UI driven by the engine |
-| `app/api/*` | Supabase-backed forms |
+| `app/api/*` | Form endpoints, preview and refresh (talk to WordPress) |
 
 ## Add a calculator
 
 1. Add a `CalcDef` to `lib/calc/engine.ts` and register it in `CALCS`.
 2. Add its metadata and content to `CALCULATORS` in `lib/calculators.ts` (same slug).
-3. It gets a page, sitemap entry and links automatically.
+3. Run `npm run wp:export` and re-zip the plugin so WordPress can edit the new calculator's text.
+4. It gets a page, sitemap entry and links automatically.
 
 ## AdSense checklist
 

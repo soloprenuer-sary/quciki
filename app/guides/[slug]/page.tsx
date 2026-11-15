@@ -2,11 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { GUIDES } from "@/lib/guides";
-import { getAllGuides, getGuide, getSiteConfig, getTool } from "@/lib/cms";
+import { getAllGuides, getGuide, getSiteConfig } from "@/lib/cms";
+import { content, getSiteInfo, getTool } from "@/lib/content";
+import { SITE_ENTRY } from "@/lib/content/entries";
 import { toolPath } from "@/lib/calculators";
 import { splitHtmlSections, splitSections } from "@/lib/markdown";
 import { withSeo } from "@/lib/seo";
-import { SITE, abs } from "@/lib/site";
+import { abs } from "@/lib/site";
 import { JsonLd } from "@/components/JsonLd";
 import { AdSlot } from "@/components/AdSlot";
 import { Markdown } from "@/components/Markdown";
@@ -49,6 +51,8 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
   if (!g) notFound();
   const calc = g.calculator ? await getTool(g.calculator) : undefined;
   const config = await getSiteConfig();
+  const site = await content(SITE_ENTRY);
+  const info = await getSiteInfo();
   const isHtml = typeof g.bodyHtml === "string";
   const sections = isHtml ? splitHtmlSections(g.bodyHtml ?? "") : splitSections(g.bodyMd ?? "");
 
@@ -64,12 +68,12 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
           dateModified: g.updated,
           mainEntityOfPage: abs(`/guides/${g.slug}`),
           ...(g.cover ? { image: g.cover } : {}),
-          author: { "@type": "Organization", name: SITE.name },
-          publisher: { "@type": "Organization", name: SITE.name },
+          author: { "@type": "Organization", name: info.name },
+          publisher: { "@type": "Organization", name: info.name },
         }}
       />
       <nav aria-label="Breadcrumb" className="mb-2 text-sm text-muted">
-        <Link href="/" className="hover:text-brand">Home</Link> / <Link href="/guides" className="hover:text-brand">Guides</Link>
+        <Link href="/" className="hover:text-brand">{site.homeLabel}</Link> / <Link href="/guides" className="hover:text-brand">Guides</Link>
       </nav>
       <h1 className="text-3xl font-extrabold leading-tight tracking-tight md:text-4xl">{g.title}</h1>
       <p className="mt-2 text-sm text-muted">

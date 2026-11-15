@@ -1,35 +1,31 @@
 import type { Metadata } from "next";
 import { withSeo } from "@/lib/seo";
-import { SITE } from "@/lib/site";
-import { getWpPage } from "@/lib/cms";
-import { WpPageView } from "@/components/WpPageView";
+import { content, getReview, getSiteInfo } from "@/lib/content";
+import { DISCLAIMER_ENTRY } from "@/lib/content/entries";
+import { RichHtml } from "@/components/RichHtml";
 
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
+  const page = await content(DISCLAIMER_ENTRY);
   return withSeo("/disclaimer", {
-  title: "Disclaimer",
-  description: `${SITE.name} calculators provide estimates for education only and are not financial, tax or legal advice.`,
-  alternates: { canonical: "/disclaimer" },
-});
+    title: page.title,
+    description: DISCLAIMER_ENTRY.seo!.description.replace("Quciki", (await getSiteInfo()).name),
+    alternates: { canonical: "/disclaimer" },
+  });
 }
 
 export default async function Disclaimer() {
-  const wp = await getWpPage("disclaimer");
-  if (wp) return <WpPageView page={wp} />;
+  const page = await content(DISCLAIMER_ENTRY);
+  const review = await getReview(DISCLAIMER_ENTRY.key);
+  const info = await getSiteInfo();
+  const label = review.at ? `${page.reviewedLabel} ${review.at.slice(0, 10)}${review.by ? ` (${review.by})` : ""}` : `${page.updatedLabel} ${info.reviewed}`;
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">Disclaimer</h1>
+      <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">{page.title}</h1>
+      <p className="mt-2 text-sm text-muted">{label}</p>
       <div className="prose-pc mt-4">
-        <p>{SITE.name} is an educational website. Nothing on this site is financial, investment, tax, legal, real estate, engineering or construction advice, and nothing is an offer or recommendation to buy or sell any property or product.</p>
-        <h2>Estimates only</h2>
-        <p>Calculator results depend on the numbers you enter and on simplified assumptions (for example constant rates of appreciation and returns, and no income tax effects). Real outcomes will differ.</p>
-        <h2>Construction and landscaping tools</h2>
-        <p>Quantities, weights and prices are typical planning values. Soil, site conditions and suppliers differ. Confirm amounts with your supplier, call 811 before you dig, follow local building codes and permit rules, and use a qualified engineer or contractor for structural, drainage or retaining work.</p>
-        <h2>Do your own research</h2>
-        <p>Before making a decision, verify figures with lenders, agents, accountants and local sources, and consult a qualified professional.</p>
-        <h2>No liability</h2>
-        <p>We are not responsible for losses or damages resulting from the use of this site&apos;s tools or content.</p>
+        <RichHtml html={page.body} />
       </div>
     </main>
   );

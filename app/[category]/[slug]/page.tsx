@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { CALCULATORS, bySlug, toolPath } from "@/lib/calculators";
-import { categoryBySlug } from "@/lib/categories";
-import { getAllTools, getGuide, getSiteConfig, getTool } from "@/lib/cms";
+import { getGuide, getSiteConfig } from "@/lib/cms";
+import { content, getAllTools, getCategory, getInputText, getReview, getSiteInfo, getTool } from "@/lib/content";
+import { CALCULATOR_PAGE_ENTRY, SITE_ENTRY } from "@/lib/content/entries";
+import { formLabels } from "@/lib/forms-labels";
 import { withSeo } from "@/lib/seo";
-import { SITE, abs } from "@/lib/site";
+import { abs } from "@/lib/site";
 import { JsonLd } from "@/components/JsonLd";
 import { CalculatorClient } from "@/components/CalculatorClient";
 import { AdSlot } from "@/components/AdSlot";
@@ -38,7 +40,7 @@ export async function generateMetadata({ params }: PageProps<"/[category]/[slug]
 export default async function CalculatorPage({ params }: PageProps<"/[category]/[slug]">) {
   const { category: categorySlug, slug } = await params;
   const c = await getTool(slug); // built-in copy with any admin edits applied
-  const cat = categoryBySlug(categorySlug);
+  const cat = await getCategory(categorySlug);
   // A tool only exists under its own category, so /finance/<real-estate-tool> is a 404.
   if (!c || !cat || c.category !== cat.slug) notFound();
 
@@ -46,6 +48,13 @@ export default async function CalculatorPage({ params }: PageProps<"/[category]/
   const all = await getAllTools();
   const related = c.related.map((s) => all.find((t) => t.slug === s)).filter((x) => x !== undefined);
   const config = await getSiteConfig();
+  const site = await content(SITE_ENTRY);
+  const info = await getSiteInfo();
+  const p = await content(CALCULATOR_PAGE_ENTRY);
+  const forms = await formLabels();
+  const review = await getReview(`calc-${slug}`);
+  const updated = review.at ? review.at.slice(0, 10) : info.reviewed;
+  const lc = c.name.toLowerCase();
   const resultsSlot = config.slotResults;
   const contentSlot = config.slotContent;
 
@@ -64,12 +73,12 @@ export default async function CalculatorPage({ params }: PageProps<"/[category]/
               operatingSystem: "Any",
               browserRequirements: "Requires JavaScript",
               offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-              publisher: { "@type": "Organization", name: SITE.name, url: abs("/") },
+              publisher: { "@type": "Organization", name: info.name, url: abs("/") },
             },
             {
               "@type": "BreadcrumbList",
               itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: abs("/") },
+                { "@type": "ListItem", position: 1, name: site.homeLabel, item: abs("/") },
                 { "@type": "ListItem", position: 2, name: cat.short, item: abs(`/${cat.slug}`) },
                 { "@type": "ListItem", position: 3, name: c.name, item: abs(toolPath(c)) },
               ],
@@ -87,32 +96,45 @@ export default async function CalculatorPage({ params }: PageProps<"/[category]/
       />
 
       <nav aria-label="Breadcrumb" className="mb-2 text-sm text-muted">
-        <Link href="/" className="hover:text-brand">Home</Link> / <Link href={`/${cat.slug}`} className="hover:text-brand">{cat.short}</Link> / {c.name}
+        <Link href="/" className="hover:text-brand">{site.homeLabel}</Link> / <Link href={`/${cat.slug}`} className="hover:text-brand">{cat.short}</Link> / {c.name}
       </nav>
       <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">{c.name}</h1>
       <p className="mt-2 max-w-3xl text-lg text-muted">{c.tagline}</p>
 
       <div className="mt-6">
-        <CalculatorClient slug={c.slug} adSlot={resultsSlot} adClient={config.adsenseClient} />
+        <CalculatorClient
+          slug={c.slug}
+          adSlot={resultsSlot}
+          adClient={config.adsenseClient}
+          text={{
+            inputsLabel: p.inputsLabel,
+            sliderSuffix: p.sliderSuffix,
+            resetButton: p.resetButton,
+            resultsLabel: p.resultsLabel,
+            saveTitle: forms.saveTitle,
+            save: forms.save,
+            inputs: await getInputText(c.slug),
+          }}
+        />
       </div>
 
       {/* ---------- Original, helpful content below the tool (important for ad approval and SEO) ---------- */}
       <article className="prose-pc mx-auto mt-14 max-w-3xl">
-        <h2>About this calculator</h2>
+        <h2>{p.aboutHeading}</h2>
         {c.intro.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
 
         <AdSlot client={config.adsenseClient} slot={contentSlot || undefined} className="my-8" />
 
-        <h2>How to use the {c.name.toLowerCase()}</h2>
+        <h2>{p.stepsHeading.replace("{calc}", lc)}</h2>
         <ol>
           {c.steps.map((s, i) => (
             <li key={i}>{s}</li>
           ))}
         </ol>
 
-        <h2>The formulas behind it</h2>
+        <h2>{p.formulaHeading}</h2>
         <ul>
           {c.formula.map((f, i) => (
             <li key={i}>
@@ -121,19 +143,19 @@ export default async function CalculatorPage({ params }: PageProps<"/[category]/
           ))}
         </ul>
 
-        <h2>Worked example</h2>
+        <h2>{p.exampleHeading}</h2>
         {c.example.map((p, i) => (
           <p key={i}>{p}</p>
         ))}
 
-        <h2>Tips for getting reliable results</h2>
+        <h2>{p.tipsHeading}</h2>
         <ul>
           {c.tips.map((t, i) => (
             <li key={i}>{t}</li>
           ))}
         </ul>
 
-        <h2>Frequently asked questions</h2>
+        <h2>{p.faqHeading}</h2>
         <div className="space-y-3">
           {c.faqs.map((f) => (
             <details key={f.q} className="rounded-xl border border-line bg-surface p-4">
@@ -145,11 +167,11 @@ export default async function CalculatorPage({ params }: PageProps<"/[category]/
 
         {guide && (
           <p className="mt-8 rounded-xl bg-brand-soft p-4">
-            Want the full explanation? Read our guide: <Link href={`/guides/${guide.slug}`}>{guide.title}</Link>.
+            {p.guideLead} <Link href={`/guides/${guide.slug}`}>{guide.title}</Link>.
           </p>
         )}
 
-        <h2>Related calculators</h2>
+        <h2>{p.relatedHeading}</h2>
         <ul>
           {related.map((r) => (
             <li key={r.slug}>
@@ -159,10 +181,8 @@ export default async function CalculatorPage({ params }: PageProps<"/[category]/
         </ul>
 
         <p className="mt-8 text-sm text-muted">
-          Last updated {SITE.reviewed}. {c.category === "real-estate"
-            ? "Results are estimates based on the inputs you provide and simplified assumptions. They are not financial, tax or legal advice."
-            : "Results are estimates based on the inputs you provide and typical material values. They are not engineering, construction or safety advice. Call 811 before you dig and check local codes."}{" "}
-          See our <Link href="/disclaimer">disclaimer</Link>.
+          {p.updatedLabel} {updated}. {c.category === "real-estate" || c.category === "finance" || c.category === "business" || c.category === "auto" ? p.financeNote : p.safetyNote}{" "}
+          {p.disclaimerLead} <Link href="/disclaimer">{p.disclaimerLabel}</Link>.
         </p>
       </article>
     </main>

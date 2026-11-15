@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { toolPath } from "@/lib/calculators";
-import { getAllTools } from "@/lib/cms";
+import { content, getAllTools, getCategories, getSiteInfo } from "@/lib/content";
+import { CALCULATORS_INDEX_ENTRY, SITE_ENTRY } from "@/lib/content/entries";
 import { withSeo } from "@/lib/seo";
-import { CATEGORIES } from "@/lib/categories";
-import { SITE, abs } from "@/lib/site";
+import { abs } from "@/lib/site";
 import { JsonLd } from "@/components/JsonLd";
 
 export const revalidate = 3600;
@@ -12,20 +12,24 @@ export const revalidate = 3600;
 export async function generateMetadata(): Promise<Metadata> {
   return withSeo("/calculators", {
     title: "All Calculators",
-    description: "Browse every free calculator on Quciki, organised by category.",
+    description: `Browse every free calculator on ${(await getSiteInfo()).name}, organised by category.`,
     alternates: { canonical: "/calculators" },
   });
 }
 
 export default async function CalculatorsIndex() {
   const CALCULATORS = await getAllTools();
-    return (
+  const categories = await getCategories();
+  const page = await content(CALCULATORS_INDEX_ENTRY);
+  const info = await getSiteInfo();
+  const site = await content(SITE_ENTRY);
+  return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <JsonLd
         data={{
           "@context": "https://schema.org",
           "@type": "ItemList",
-          name: `${SITE.name} calculators`,
+          name: `${info.name} calculators`,
           itemListElement: CALCULATORS.map((c, i) => ({
             "@type": "ListItem",
             position: i + 1,
@@ -34,11 +38,9 @@ export default async function CalculatorsIndex() {
           })),
         }}
       />
-      <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">All calculators</h1>
-      <p className="mt-2 max-w-2xl text-muted">
-        Each calculator includes the formula, a worked example and answers to common questions, so you understand the result and not just the number.
-      </p>
-      {CATEGORIES.map((cat) => (
+      <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">{page.heading}</h1>
+      <p className="mt-2 max-w-2xl text-muted">{page.intro}</p>
+      {categories.map((cat) => (
         <section key={cat.slug} className="mt-10">
           <h2 className="text-2xl font-bold">
             <Link href={`/${cat.slug}`} className="hover:text-brand">{cat.name}</Link>
@@ -51,7 +53,7 @@ export default async function CalculatorsIndex() {
                   <Link key={c.slug} href={toolPath(c)} className="rounded-2xl border border-line bg-surface p-5 shadow-card transition hover:-translate-y-0.5 hover:border-brand">
                     <h4 className="text-lg font-bold">{c.name}</h4>
                     <p className="mt-1 text-sm text-muted">{c.tagline}</p>
-                    <span className="mt-4 inline-block text-sm font-semibold text-brand">Open →</span>
+                    <span className="mt-4 inline-block text-sm font-semibold text-brand">{site.openLabel}</span>
                   </Link>
                 ))}
               </div>

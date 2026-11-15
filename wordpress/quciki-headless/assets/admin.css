@@ -1,0 +1,33 @@
+.quciki .qk-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin: 16px 0 8px; max-width: 900px; }
+.quciki .qk-card { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; background: #fff; border: 1px solid #dcdcde; border-radius: 8px; text-decoration: none; color: inherit; }
+.quciki .qk-card:hover { border-color: #2271b1; }
+.quciki .qk-num { font-size: 30px; font-weight: 700; line-height: 1.1; }
+.quciki .qk-list { list-style: disc; margin-left: 22px; }
+.quciki .qk-chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; background: #f0f0f1; color: #50575e; }
+.quciki .qk-chip-live { background: #d7f0df; color: #0a5c2b; }
+.quciki .qk-chip-draft { background: #fcf0c3; color: #6b4e00; }
+.quciki .qk-group { margin-top: 28px; }
+.quciki .qk-edit { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; margin-top: 14px; }
+@media (max-width: 960px) { .quciki .qk-edit { grid-template-columns: 1fr; } }
+.quciki .qk-section { background: #fff; border: 1px solid #dcdcde; border-radius: 6px; margin-bottom: 12px; }
+.quciki .qk-section > summary { padding: 12px 16px; font-weight: 600; cursor: pointer; font-size: 14px; }
+.quciki .qk-section-body { padding: 4px 16px 14px; border-top: 1px solid #f0f0f1; }
+.quciki .qk-field { margin: 14px 0; }
+.quciki .qk-label { display: block; font-weight: 600; margin-bottom: 4px; }
+.quciki .qk-sublabel { display: block; font-size: 12px; color: #50575e; margin: 8px 0 3px; }
+.quciki .qk-field .description { display: block; margin: 0 0 6px; }
+.quciki .qk-req { color: #b32d2e; }
+.quciki .qk-image { display: flex; gap: 8px; }
+.quciki .qk-row { border: 1px solid #dcdcde; border-radius: 6px; padding: 10px 12px 12px; margin: 8px 0; background: #fafafa; }
+.quciki .qk-row-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.quciki .qk-row-bar .button-link { margin-left: 8px; }
+.quciki .qk-edit-side { position: sticky; top: 42px; }
+.quciki .qk-box { background: #fff; border: 1px solid #dcdcde; border-radius: 6px; padding: 4px 14px 10px; margin-bottom: 14px; }
+.quciki .qk-box h2 { font-size: 14px; padding: 10px 0 0; }
+.quciki .qk-box .button { text-align: center; }
+.quciki .qk-danger { color: #b32d2e; }
+.quciki .qk-history { list-style: none; margin: 0; padding: 0; font-size: 12px; }
+.quciki .qk-history li { padding: 6px 0; border-top: 1px solid #f0f0f1; }
+.quciki .qk-counter { display: block; font-size: 12px; color: #50575e; margin-top: 3px; }
+.quciki .qk-counter.qk-over { color: #b32d2e; }
+.quciki .qk-use-default { margin-top: 4px; font-size: 12px; }

@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { CALCS, defaultsFor } from "@/lib/calc/engine";
 import type { Tone, Values } from "@/lib/calc/types";
 import { money, percent } from "@/lib/format";
-import { EmailForm } from "./EmailForm";
+import { EmailForm, type EmailFormLabels } from "./EmailForm";
 import { LineChart } from "./LineChart";
 import { AdSlot } from "./AdSlot";
 
@@ -20,8 +20,31 @@ function groupInputs<T extends { group: string }>(items: T[]) {
   return [...map.entries()];
 }
 
-export function CalculatorClient({ slug, adSlot, adClient }: { slug: string; adSlot?: string; adClient?: string }) {
-  const def = CALCS[slug];
+export interface CalculatorText {
+  inputsLabel: string;
+  sliderSuffix: string;
+  resetButton: string;
+  resultsLabel: string;
+  saveTitle: string;
+  save: EmailFormLabels;
+  /** Edited labels for each input, keyed by input key. Empty strings mean "none". */
+  inputs: Record<string, { label?: string; help?: string; prefix?: string; suffix?: string }>;
+}
+
+export function CalculatorClient({ slug, adSlot, adClient, text }: { slug: string; adSlot?: string; adClient?: string; text: CalculatorText }) {
+  const base = CALCS[slug];
+  // Labels, help text and units can be edited in WordPress. Ranges, defaults and the maths always come from code.
+  const def = useMemo(
+    () => ({
+      ...base,
+      inputs: base.inputs.map((i) => {
+        const o = text.inputs[i.key];
+        if (!o) return i;
+        return { ...i, label: o.label || i.label, help: o.help || undefined, prefix: o.prefix || undefined, suffix: o.suffix || undefined };
+      }),
+    }),
+    [base, text.inputs],
+  );
   const [values, setValues] = useState<Values>(() => defaultsFor(slug));
   // Clamp to each input's valid range so typing 0 (or clearing a box) never produces NaN or Infinity results.
   const result = useMemo(() => {
@@ -30,8 +53,8 @@ export function CalculatorClient({ slug, adSlot, adClient }: { slug: string; adS
       const n = Number.isFinite(values[i.key]) ? values[i.key] : i.default;
       safe[i.key] = Math.min(Math.max(n, i.min), i.max);
     }
-    return def.compute(safe);
-  }, [def, values]);
+    return base.compute(safe);
+  }, [base, def.inputs, values]);
   const groups = useMemo(() => groupInputs(def.inputs), [def]);
 
   const set = (key: string, raw: string) => {
@@ -44,7 +67,7 @@ export function CalculatorClient({ slug, adSlot, adClient }: { slug: string; adS
       {/* ---------- Inputs ---------- */}
       <form
         onSubmit={(e) => e.preventDefault()}
-        aria-label="Calculator inputs"
+        aria-label={text.inputsLabel}
         className="rounded-2xl border border-line bg-surface p-5 shadow-card lg:sticky lg:top-20"
       >
         {groups.map(([group, items]) => (
@@ -75,7 +98,7 @@ export function CalculatorClient({ slug, adSlot, adClient }: { slug: string; adS
                   </div>
                   <input
                     type="range"
-                    aria-label={`${i.label} slider`}
+                    aria-label={`${i.label} ${text.sliderSuffix}`}
                     min={i.min}
                     max={i.max}
                     step={i.step}
@@ -98,13 +121,13 @@ export function CalculatorClient({ slug, adSlot, adClient }: { slug: string; adS
           onClick={() => setValues(defaultsFor(slug))}
           className="w-full rounded-lg border border-line px-4 py-2 text-sm font-semibold hover:bg-brand-soft"
         >
-          Reset to defaults
+          {text.resetButton}
         </button>
       </form>
 
       {/* ---------- Results ---------- */}
       <div className="grid gap-6">
-        <section aria-live="polite" aria-label="Results" className="rounded-2xl border border-line bg-surface p-5 shadow-card">
+        <section aria-live="polite" aria-label={text.resultsLabel} className="rounded-2xl border border-line bg-surface p-5 shadow-card">
           <p className="rounded-xl bg-brand-soft p-4 text-base font-semibold leading-snug">{result.verdict.text}</p>
 
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
@@ -145,12 +168,11 @@ export function CalculatorClient({ slug, adSlot, adClient }: { slug: string; adS
           )}
 
           <div className="mt-6 border-t border-line pt-4">
-            <p className="mb-2 text-sm font-semibold">Save this estimate and get updates</p>
+            <p className="mb-2 text-sm font-semibold">{text.saveTitle}</p>
             <EmailForm
               endpoint="/api/save-estimate"
               extra={{ calculator: slug, inputs: values, summary: result.verdict.text }}
-              cta="Save"
-              success="Saved! We stored your inputs and added you to the list."
+              labels={text.save}
             />
           </div>
         </section>

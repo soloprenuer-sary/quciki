@@ -1,9 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { CONTACT_TOPICS } from "@/lib/contact";
 
-export function ContactForm() {
+export interface ContactLabels {
+  name: string;
+  email: string;
+  topic: string;
+  topicPlaceholder: string;
+  message: string;
+  messagePlaceholder: string;
+  messageNote: string;
+  submit: string;
+  sending: string;
+  success: string;
+}
+
+export function ContactForm({ topics, labels }: { topics: string[]; labels: ContactLabels }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [msg, setMsg] = useState("");
 
@@ -21,7 +33,7 @@ export function ContactForm() {
       const json = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(json.error || "Something went wrong.");
       setState("done");
-      setMsg("Thanks! Your message was sent. We will reply to the email you gave us.");
+      setMsg(labels.success);
       form.reset();
     } catch (err) {
       setState("error");
@@ -36,27 +48,27 @@ export function ContactForm() {
     <form onSubmit={submit} className="space-y-5" noValidate={false}>
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="name" className={label}>Name</label>
+          <label htmlFor="name" className={label}>{labels.name}</label>
           <input id="name" name="name" required maxLength={100} autoComplete="name" className={input} />
         </div>
         <div>
-          <label htmlFor="email" className={label}>Email</label>
+          <label htmlFor="email" className={label}>{labels.email}</label>
           <input id="email" name="email" type="email" required autoComplete="email" className={input} />
         </div>
       </div>
 
       <div>
-        <label htmlFor="topic" className={label}>What is this about?</label>
+        <label htmlFor="topic" className={label}>{labels.topic}</label>
         <select id="topic" name="topic" required defaultValue="" className={input}>
-          <option value="" disabled>Choose a topic</option>
-          {CONTACT_TOPICS.map((t) => (
-            <option key={t.value} value={t.value}>{t.label}</option>
+          <option value="" disabled>{labels.topicPlaceholder}</option>
+          {topics.map((t) => (
+            <option key={t} value={t}>{t}</option>
           ))}
         </select>
       </div>
 
       <div>
-        <label htmlFor="message" className={label}>Message</label>
+        <label htmlFor="message" className={label}>{labels.message}</label>
         <textarea
           id="message"
           name="message"
@@ -64,10 +76,10 @@ export function ContactForm() {
           minLength={5}
           maxLength={4000}
           rows={6}
-          placeholder="For a correction, include the calculator name, the line you think is wrong and your source if you have one."
+          placeholder={labels.messagePlaceholder}
           className={input}
         />
-        <p className="mt-1.5 text-xs text-muted">Up to 4,000 characters. Please don&apos;t send personal financial details.</p>
+        <p className="mt-1.5 text-xs text-muted">{labels.messageNote}</p>
       </div>
 
       {/* Honeypot: hidden from people, filled by bots */}
@@ -80,7 +92,7 @@ export function ContactForm() {
           disabled={state === "loading"}
           className="rounded-lg bg-brand px-6 py-3 font-semibold text-brand-ink transition hover:bg-brand-strong disabled:opacity-60"
         >
-          {state === "loading" ? "Sending…" : "Send message"}
+          {state === "loading" ? labels.sending : labels.submit}
         </button>
         <p role="status" aria-live="polite" className={`text-sm ${state === "error" ? "text-bad" : "text-good"}`}>
           {state === "done" || state === "error" ? msg : ""}
