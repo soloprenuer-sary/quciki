@@ -1,12 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 
 /*
- * Two jobs, both best-effort and fast:
- *  1. /admin: keep the Supabase session fresh and tell search engines not to index it.
- *     Real authorization happens in server code and database rules, NOT here.
- *  2. Everything else: apply redirects saved in Admin > Redirects.
- *     The redirect list is cached in memory for a minute, so most requests never touch the database.
+ * Applies redirects managed in WordPress (Quciki > Redirects).
+ * The list is fetched from a small WordPress endpoint and cached in memory for a minute, so most
+ * requests never leave the server. If WordPress is down, the last known list keeps working.
  */
 
 interface Hit {
@@ -16,20 +13,30 @@ interface Hit {
 let cache: { at: number; map: Map<string, Hit> } | null = null;
 const TTL_MS = 60_000;
 
+const SAFE_DEST = /^(\/(?!\/)[^\s]*|https:\/\/[^\s]+)$/;
+
 async function redirectMap(): Promise<Map<string, Hit>> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return new Map();
+  const base = (process.env.WORDPRESS_URL ?? "").trim().replace(/\/+$/, "");
+  if (!/^https?:\/\//.test(base)) return new Map();
   if (cache && Date.now() - cache.at < TTL_MS) return cache.map;
   try {
-    const res = await fetch(`${url}/rest/v1/redirects?select=source,destination,permanent&active=eq.true&limit=2000`, {
-      headers: { apikey: key, Authorization: `Bearer ${key}` },
+    const res = await fetch(`${base}/wp-json/quciki/v1/redirects`, {
+      headers: { Accept: "application/json" },
       signal: AbortSignal.timeout(1500),
       cache: "no-store",
     });
     if (!res.ok) throw new Error(String(res.status));
-    const rows = (await res.json()) as { source: string; destination: string; permanent: boolean }[];
-    const map = new Map(rows.map((r) => [r.source, { to: r.destination, permanent: r.permanent }]));
+    const rows = (await res.json()) as unknown;
+    const map = new Map<string, Hit>();
+    if (Array.isArray(rows)) {
+      for (const r of rows) {
+        const source = typeof r?.source === "string" ? r.source : "";
+        const to = typeof r?.destination === "string" ? r.destination : "";
+        if (!source.startsWith("/") || source.startsWith("//") || /[\s?#]/.test(source)) continue;
+        if (/^\/(api|_next)(\/|$)/.test(source) || source === to || !SAFE_DEST.test(to)) continue;
+        map.set(source.length > 1 && source.endsWith("/") ? source.slice(0, -1) : source, { to, permanent: r.permanent !== false });
+      }
+    }
     cache = { at: Date.now(), map };
     return map;
   } catch {
@@ -40,32 +47,9 @@ async function redirectMap(): Promise<Map<string, Hit>> {
 }
 
 export async function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    let response = NextResponse.next({ request });
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (url && key) {
-      const supabase = createServerClient(url, key, {
-        cookies: {
-          getAll: () => request.cookies.getAll(),
-          setAll(list) {
-            list.forEach(({ name, value }) => request.cookies.set(name, value));
-            response = NextResponse.next({ request });
-            list.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
-          },
-        },
-      });
-      await supabase.auth.getUser(); // refreshes an expiring session and rewrites the cookies
-    }
-    response.headers.set("X-Robots-Tag", "noindex, nofollow");
-    response.headers.set("Cache-Control", "no-store");
-    return response;
-  }
-
   const map = await redirectMap();
   if (map.size) {
+    const { pathname } = request.nextUrl;
     const key = pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
     const hit = map.get(key);
     if (hit) {

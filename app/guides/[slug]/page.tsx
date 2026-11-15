@@ -4,15 +4,16 @@ import type { Metadata } from "next";
 import { GUIDES } from "@/lib/guides";
 import { getAllGuides, getGuide, getSiteConfig, getTool } from "@/lib/cms";
 import { toolPath } from "@/lib/calculators";
-import { splitSections } from "@/lib/markdown";
+import { splitHtmlSections, splitSections } from "@/lib/markdown";
 import { withSeo } from "@/lib/seo";
 import { SITE, abs } from "@/lib/site";
 import { JsonLd } from "@/components/JsonLd";
 import { AdSlot } from "@/components/AdSlot";
 import { Markdown } from "@/components/Markdown";
+import { RichHtml } from "@/components/RichHtml";
 
-// New guides created in the admin are rendered on first request and then cached.
-// Re-check once an hour so scheduled guides appear; saving in the admin refreshes immediately.
+// Guides published in WordPress are rendered on first request and then cached.
+// Re-check once an hour so scheduled guides appear; publishing in WordPress refreshes immediately via /api/revalidate.
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
@@ -48,7 +49,8 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
   if (!g) notFound();
   const calc = g.calculator ? await getTool(g.calculator) : undefined;
   const config = await getSiteConfig();
-  const sections = splitSections(g.bodyMd);
+  const isHtml = typeof g.bodyHtml === "string";
+  const sections = isHtml ? splitHtmlSections(g.bodyHtml ?? "") : splitSections(g.bodyMd ?? "");
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
@@ -83,7 +85,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
         )}
         {sections.map((md, i) => (
           <section key={i}>
-            <Markdown>{md}</Markdown>
+            {isHtml ? <RichHtml html={md} /> : <Markdown>{md}</Markdown>}
             {i === 1 && <AdSlot client={config.adsenseClient} slot={config.slotContent || undefined} className="my-6" />}
           </section>
         ))}

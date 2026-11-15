@@ -1,4 +1,4 @@
-import type { Faq } from "../calculators";
+import type { Faq } from "./calculators";
 
 /** Paragraphs separated by a blank line. */
 export const parseParagraphs = (text: string): string[] =>

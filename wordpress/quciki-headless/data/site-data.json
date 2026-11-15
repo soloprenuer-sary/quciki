@@ -1,0 +1,458 @@
+{
+ "categories": [
+  {
+   "slug": "real-estate",
+   "name": "Real Estate Calculators"
+  },
+  {
+   "slug": "construction",
+   "name": "Construction and Landscaping Calculators"
+  },
+  {
+   "slug": "finance",
+   "name": "Personal Finance Calculators"
+  },
+  {
+   "slug": "auto",
+   "name": "Auto and Transportation Calculators"
+  },
+  {
+   "slug": "business",
+   "name": "Business and Freelance Calculators"
+  }
+ ],
+ "calculators": [
+  {
+   "slug": "buy-vs-rent-calculator",
+   "name": "Buy vs Rent Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/buy-vs-rent-calculator"
+  },
+  {
+   "slug": "rental-property-roi-calculator",
+   "name": "Rental Property ROI Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/rental-property-roi-calculator"
+  },
+  {
+   "slug": "real-estate-roi-calculator",
+   "name": "Real Estate ROI Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/real-estate-roi-calculator"
+  },
+  {
+   "slug": "cap-rate-calculator",
+   "name": "Cap Rate Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/cap-rate-calculator"
+  },
+  {
+   "slug": "cash-on-cash-return-calculator",
+   "name": "Cash on Cash Return Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/cash-on-cash-return-calculator"
+  },
+  {
+   "slug": "fix-and-flip-calculator",
+   "name": "Fix and Flip Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/fix-and-flip-calculator"
+  },
+  {
+   "slug": "closing-costs-calculator",
+   "name": "Closing Costs Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/closing-costs-calculator"
+  },
+  {
+   "slug": "commercial-noi-calculator",
+   "name": "Commercial NOI Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/commercial-noi-calculator"
+  },
+  {
+   "slug": "property-tax-calculator",
+   "name": "Property Tax Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/property-tax-calculator"
+  },
+  {
+   "slug": "hard-money-loan-calculator",
+   "name": "Hard Money Loan Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/hard-money-loan-calculator"
+  },
+  {
+   "slug": "refinance-calculator",
+   "name": "Refinance Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/refinance-calculator"
+  },
+  {
+   "slug": "home-equity-calculator",
+   "name": "Home Equity Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/home-equity-calculator"
+  },
+  {
+   "slug": "mortgage-comparison-calculator",
+   "name": "Mortgage Comparison Calculator",
+   "category": "real-estate",
+   "path": "/real-estate/mortgage-comparison-calculator"
+  },
+  {
+   "slug": "gravel-calculator",
+   "name": "Gravel Calculator",
+   "category": "construction",
+   "path": "/construction/gravel-calculator"
+  },
+  {
+   "slug": "gravel-driveway-calculator",
+   "name": "Gravel Driveway Calculator",
+   "category": "construction",
+   "path": "/construction/gravel-driveway-calculator"
+  },
+  {
+   "slug": "french-drain-calculator",
+   "name": "French Drain Calculator",
+   "category": "construction",
+   "path": "/construction/french-drain-calculator"
+  },
+  {
+   "slug": "retaining-wall-block-calculator",
+   "name": "Retaining Wall Block Calculator",
+   "category": "construction",
+   "path": "/construction/retaining-wall-block-calculator"
+  },
+  {
+   "slug": "paver-base-calculator",
+   "name": "Paver Base Calculator",
+   "category": "construction",
+   "path": "/construction/paver-base-calculator"
+  },
+  {
+   "slug": "excavation-volume-calculator",
+   "name": "Excavation Volume Calculator",
+   "category": "construction",
+   "path": "/construction/excavation-volume-calculator"
+  },
+  {
+   "slug": "dump-truck-load-calculator",
+   "name": "Dump Truck Load Calculator",
+   "category": "construction",
+   "path": "/construction/dump-truck-load-calculator"
+  },
+  {
+   "slug": "fill-dirt-calculator",
+   "name": "Fill Dirt Calculator",
+   "category": "construction",
+   "path": "/construction/fill-dirt-calculator"
+  },
+  {
+   "slug": "excavation-cost-calculator",
+   "name": "Excavation Cost Calculator",
+   "category": "construction",
+   "path": "/construction/excavation-cost-calculator"
+  },
+  {
+   "slug": "compound-interest-calculator",
+   "name": "Compound Interest Calculator",
+   "category": "finance",
+   "path": "/finance/compound-interest-calculator"
+  },
+  {
+   "slug": "savings-goal-calculator",
+   "name": "Savings Goal Calculator",
+   "category": "finance",
+   "path": "/finance/savings-goal-calculator"
+  },
+  {
+   "slug": "debt-payoff-calculator",
+   "name": "Debt Payoff Calculator",
+   "category": "finance",
+   "path": "/finance/debt-payoff-calculator"
+  },
+  {
+   "slug": "salary-to-hourly-calculator",
+   "name": "Salary to Hourly Calculator",
+   "category": "finance",
+   "path": "/finance/salary-to-hourly-calculator"
+  },
+  {
+   "slug": "take-home-pay-calculator",
+   "name": "Take-Home Pay Calculator",
+   "category": "finance",
+   "path": "/finance/take-home-pay-calculator"
+  },
+  {
+   "slug": "budget-50-30-20-calculator",
+   "name": "50/30/20 Budget Calculator",
+   "category": "finance",
+   "path": "/finance/budget-50-30-20-calculator"
+  },
+  {
+   "slug": "emergency-fund-calculator",
+   "name": "Emergency Fund Calculator",
+   "category": "finance",
+   "path": "/finance/emergency-fund-calculator"
+  },
+  {
+   "slug": "car-loan-calculator",
+   "name": "Car Loan Calculator",
+   "category": "auto",
+   "path": "/auto/car-loan-calculator"
+  },
+  {
+   "slug": "auto-lease-calculator",
+   "name": "Auto Lease Calculator",
+   "category": "auto",
+   "path": "/auto/auto-lease-calculator"
+  },
+  {
+   "slug": "fuel-cost-calculator",
+   "name": "Fuel Cost Calculator",
+   "category": "auto",
+   "path": "/auto/fuel-cost-calculator"
+  },
+  {
+   "slug": "ev-charging-cost-calculator",
+   "name": "EV Charging Cost Calculator",
+   "category": "auto",
+   "path": "/auto/ev-charging-cost-calculator"
+  },
+  {
+   "slug": "car-depreciation-calculator",
+   "name": "Car Depreciation Calculator",
+   "category": "auto",
+   "path": "/auto/car-depreciation-calculator"
+  },
+  {
+   "slug": "markup-margin-calculator",
+   "name": "Markup and Margin Calculator",
+   "category": "business",
+   "path": "/business/markup-margin-calculator"
+  },
+  {
+   "slug": "break-even-calculator",
+   "name": "Break-Even Calculator",
+   "category": "business",
+   "path": "/business/break-even-calculator"
+  },
+  {
+   "slug": "sales-tax-calculator",
+   "name": "Sales Tax Calculator",
+   "category": "business",
+   "path": "/business/sales-tax-calculator"
+  },
+  {
+   "slug": "freelance-hourly-rate-calculator",
+   "name": "Freelance Hourly Rate Calculator",
+   "category": "business",
+   "path": "/business/freelance-hourly-rate-calculator"
+  },
+  {
+   "slug": "business-loan-calculator",
+   "name": "Business Loan Calculator",
+   "category": "business",
+   "path": "/business/business-loan-calculator"
+  }
+ ],
+ "paths": [
+  {
+   "path": "/",
+   "label": "Home page"
+  },
+  {
+   "path": "/calculators",
+   "label": "All calculators"
+  },
+  {
+   "path": "/guides",
+   "label": "Guides index"
+  },
+  {
+   "path": "/about",
+   "label": "About Us"
+  },
+  {
+   "path": "/contact",
+   "label": "Contact Us"
+  },
+  {
+   "path": "/real-estate",
+   "label": "Category: Real Estate Calculators"
+  },
+  {
+   "path": "/construction",
+   "label": "Category: Construction and Landscaping Calculators"
+  },
+  {
+   "path": "/finance",
+   "label": "Category: Personal Finance Calculators"
+  },
+  {
+   "path": "/auto",
+   "label": "Category: Auto and Transportation Calculators"
+  },
+  {
+   "path": "/business",
+   "label": "Category: Business and Freelance Calculators"
+  },
+  {
+   "path": "/real-estate/buy-vs-rent-calculator",
+   "label": "Calculator: Buy vs Rent Calculator"
+  },
+  {
+   "path": "/real-estate/rental-property-roi-calculator",
+   "label": "Calculator: Rental Property ROI Calculator"
+  },
+  {
+   "path": "/real-estate/real-estate-roi-calculator",
+   "label": "Calculator: Real Estate ROI Calculator"
+  },
+  {
+   "path": "/real-estate/cap-rate-calculator",
+   "label": "Calculator: Cap Rate Calculator"
+  },
+  {
+   "path": "/real-estate/cash-on-cash-return-calculator",
+   "label": "Calculator: Cash on Cash Return Calculator"
+  },
+  {
+   "path": "/real-estate/fix-and-flip-calculator",
+   "label": "Calculator: Fix and Flip Calculator"
+  },
+  {
+   "path": "/real-estate/closing-costs-calculator",
+   "label": "Calculator: Closing Costs Calculator"
+  },
+  {
+   "path": "/real-estate/commercial-noi-calculator",
+   "label": "Calculator: Commercial NOI Calculator"
+  },
+  {
+   "path": "/real-estate/property-tax-calculator",
+   "label": "Calculator: Property Tax Calculator"
+  },
+  {
+   "path": "/real-estate/hard-money-loan-calculator",
+   "label": "Calculator: Hard Money Loan Calculator"
+  },
+  {
+   "path": "/real-estate/refinance-calculator",
+   "label": "Calculator: Refinance Calculator"
+  },
+  {
+   "path": "/real-estate/home-equity-calculator",
+   "label": "Calculator: Home Equity Calculator"
+  },
+  {
+   "path": "/real-estate/mortgage-comparison-calculator",
+   "label": "Calculator: Mortgage Comparison Calculator"
+  },
+  {
+   "path": "/construction/gravel-calculator",
+   "label": "Calculator: Gravel Calculator"
+  },
+  {
+   "path": "/construction/gravel-driveway-calculator",
+   "label": "Calculator: Gravel Driveway Calculator"
+  },
+  {
+   "path": "/construction/french-drain-calculator",
+   "label": "Calculator: French Drain Calculator"
+  },
+  {
+   "path": "/construction/retaining-wall-block-calculator",
+   "label": "Calculator: Retaining Wall Block Calculator"
+  },
+  {
+   "path": "/construction/paver-base-calculator",
+   "label": "Calculator: Paver Base Calculator"
+  },
+  {
+   "path": "/construction/excavation-volume-calculator",
+   "label": "Calculator: Excavation Volume Calculator"
+  },
+  {
+   "path": "/construction/dump-truck-load-calculator",
+   "label": "Calculator: Dump Truck Load Calculator"
+  },
+  {
+   "path": "/construction/fill-dirt-calculator",
+   "label": "Calculator: Fill Dirt Calculator"
+  },
+  {
+   "path": "/construction/excavation-cost-calculator",
+   "label": "Calculator: Excavation Cost Calculator"
+  },
+  {
+   "path": "/finance/compound-interest-calculator",
+   "label": "Calculator: Compound Interest Calculator"
+  },
+  {
+   "path": "/finance/savings-goal-calculator",
+   "label": "Calculator: Savings Goal Calculator"
+  },
+  {
+   "path": "/finance/debt-payoff-calculator",
+   "label": "Calculator: Debt Payoff Calculator"
+  },
+  {
+   "path": "/finance/salary-to-hourly-calculator",
+   "label": "Calculator: Salary to Hourly Calculator"
+  },
+  {
+   "path": "/finance/take-home-pay-calculator",
+   "label": "Calculator: Take-Home Pay Calculator"
+  },
+  {
+   "path": "/finance/budget-50-30-20-calculator",
+   "label": "Calculator: 50/30/20 Budget Calculator"
+  },
+  {
+   "path": "/finance/emergency-fund-calculator",
+   "label": "Calculator: Emergency Fund Calculator"
+  },
+  {
+   "path": "/auto/car-loan-calculator",
+   "label": "Calculator: Car Loan Calculator"
+  },
+  {
+   "path": "/auto/auto-lease-calculator",
+   "label": "Calculator: Auto Lease Calculator"
+  },
+  {
+   "path": "/auto/fuel-cost-calculator",
+   "label": "Calculator: Fuel Cost Calculator"
+  },
+  {
+   "path": "/auto/ev-charging-cost-calculator",
+   "label": "Calculator: EV Charging Cost Calculator"
+  },
+  {
+   "path": "/auto/car-depreciation-calculator",
+   "label": "Calculator: Car Depreciation Calculator"
+  },
+  {
+   "path": "/business/markup-margin-calculator",
+   "label": "Calculator: Markup and Margin Calculator"
+  },
+  {
+   "path": "/business/break-even-calculator",
+   "label": "Calculator: Break-Even Calculator"
+  },
+  {
+   "path": "/business/sales-tax-calculator",
+   "label": "Calculator: Sales Tax Calculator"
+  },
+  {
+   "path": "/business/freelance-hourly-rate-calculator",
+   "label": "Calculator: Freelance Hourly Rate Calculator"
+  },
+  {
+   "path": "/business/business-loan-calculator",
+   "label": "Calculator: Business Loan Calculator"
+  }
+ ]
+}

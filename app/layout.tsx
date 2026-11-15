@@ -5,7 +5,6 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ConsentBanner } from "@/components/ConsentBanner";
-import { HideOnAdmin } from "@/components/HideOnAdmin";
 import { getSiteConfig } from "@/lib/cms";
 import { SITE } from "@/lib/site";
 
@@ -47,24 +46,20 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-surface focus:p-2">
           Skip to content
         </a>
-        <HideOnAdmin>
-          <Header />
-        </HideOnAdmin>
+        <Header />
         <div id="main" className="flex-1">
           {children}
         </div>
-        <HideOnAdmin>
-          <Footer />
-          <ConsentBanner />
-          {config.adsenseClient ? (
-            <Script
-              async
-              strategy="afterInteractive"
-              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsenseClient}`}
-              crossOrigin="anonymous"
-            />
-          ) : null}
-        </HideOnAdmin>
+        <Footer />
+        <ConsentBanner />
+        {config.adsenseClient ? (
+          <Script
+            async
+            strategy="afterInteractive"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsenseClient}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
       </body>
     </html>
   );

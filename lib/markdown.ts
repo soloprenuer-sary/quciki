@@ -10,3 +10,11 @@ export function splitSections(md: string): string[] {
   }
   return blocks.map((b) => b.join("\n").trim()).filter(Boolean);
 }
+
+/** Splits sanitized HTML into the intro block and one block per <h2> section. */
+export function splitHtmlSections(html: string): string[] {
+  return html
+    .split(/(?=<h2[\s>])/i)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}

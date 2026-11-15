@@ -7,7 +7,7 @@ import { abs } from "@/lib/site";
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const noindex = await getNoindexPaths(); // pages the admin marked noindex stay out of the sitemap
+  const noindex = await getNoindexPaths(); // pages marked noindex in WordPress stay out of the sitemap
   const guides = await getAllGuides();
   const staticPages = ["/", "/calculators", "/guides", "/about", "/contact", "/privacy-policy", "/terms", "/disclaimer"];
 

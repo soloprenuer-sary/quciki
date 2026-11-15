@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { withSeo } from "@/lib/seo";
 import { SITE } from "@/lib/site";
+import { getWpPage } from "@/lib/cms";
+import { WpPageView } from "@/components/WpPageView";
+
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   return withSeo("/terms", {
@@ -10,7 +14,9 @@ export async function generateMetadata(): Promise<Metadata> {
 });
 }
 
-export default function Terms() {
+export default async function Terms() {
+  const wp = await getWpPage("terms");
+  if (wp) return <WpPageView page={wp} />;
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-extrabold tracking-tight md:text-4xl">Terms of Use</h1>
