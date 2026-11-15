@@ -30,9 +30,15 @@ export async function submitToWp(type: SubmitType, data: Record<string, unknown>
       cache: "no-store",
     });
     if (res.status === 429) return { ok: false, status: 429, error: "Too many attempts. Please try again later." };
-    if (!res.ok) return { ok: false, status: res.status === 400 ? 400 : 502, error: "Could not save. Try again later." };
+    if (!res.ok) {
+      // Visitors only see a generic message. The real reason is in the Vercel function logs.
+      const why = res.status === 401 ? "WordPress rejected the shared secret (REVALIDATE_SECRET in Vercel must equal the secret saved in WordPress)" : `WordPress answered ${res.status}`;
+      console.error(`[quciki] form "${type}" could not be saved: ${why}`);
+      return { ok: false, status: res.status === 400 ? 400 : 502, error: "Could not save. Try again later." };
+    }
     return { ok: true, status: 200 };
-  } catch {
+  } catch (err) {
+    console.error(`[quciki] form "${type}" could not be saved: WordPress unreachable (${err instanceof Error ? err.message : err})`);
     return { ok: false, status: 502, error: "Could not save. Try again later." };
   }
 }

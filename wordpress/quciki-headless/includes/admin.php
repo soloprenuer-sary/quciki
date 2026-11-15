@@ -454,11 +454,41 @@ add_action( 'admin_post_quciki_restore_entry', function () {
  * Settings
  * ------------------------------------------------------------------ */
 
+/** Calls the website's refresh route with the saved secret and explains the result in plain words. */
+function quciki_test_connection() {
+	$s = quciki_settings();
+	if ( ! quciki_connected() ) {
+		return array( 'error', 'Fill in the Website URL and a shared secret of at least 16 characters first.' );
+	}
+	$res = wp_remote_post( $s['frontend_url'] . '/api/revalidate', array(
+		'timeout'     => 20,
+		'redirection' => 0,
+		'headers'     => array( 'x-revalidate-secret' => $s['revalidate_secret'] ),
+	) );
+	if ( is_wp_error( $res ) ) {
+		return array( 'error', 'Could not reach the website: ' . $res->get_error_message() . '. Check the Website URL.' );
+	}
+	$code = (int) wp_remote_retrieve_response_code( $res );
+	if ( 200 === $code ) {
+		return array( 'success', 'Connected. The website accepted the secret and refreshed its pages. Forms, publishing and preview will work.' );
+	}
+	if ( 401 === $code ) {
+		return array( 'error', 'The website rejected the secret. REVALIDATE_SECRET in Vercel must be exactly the same as the Shared secret here (letters, numbers, - and _ only). After changing it in Vercel, redeploy the site.' );
+	}
+	if ( in_array( $code, array( 404, 405 ), true ) ) {
+		return array( 'error', 'The website answered, but it does not have the refresh route. Redeploy the latest version of the website, or check that the Website URL is the right project.' );
+	}
+	if ( $code >= 300 && $code < 400 ) {
+		return array( 'error', 'The website redirected the request. Use the final address as the Website URL (for example with or without www, as the site shows it).' );
+	}
+	return array( 'error', 'The website answered with an unexpected status (' . $code . '). Check the Vercel deployment.' );
+}
+
 function quciki_settings_page() {
 	if ( ! current_user_can( 'quciki_manage' ) ) {
 		wp_die( 'You do not have permission to view this page.' );
 	}
-	$notice = '';
+	$notices = array();
 	if ( isset( $_POST['quciki_settings_nonce'] ) ) {
 		check_admin_referer( 'quciki_save_settings', 'quciki_settings_nonce' );
 		$in  = wp_unslash( $_POST );
@@ -476,20 +506,28 @@ function quciki_settings_page() {
 			'notify_email'         => sanitize_email( $get( 'notify_email' ) ),
 			'review_months'        => (string) max( 1, min( 60, absint( $get( 'review_months' ) ) ) ),
 		);
+		$typed_secret = trim( $get( 'revalidate_secret' ) );
+		if ( $typed_secret !== $new['revalidate_secret'] ) {
+			$notices[] = array( 'warning', 'The shared secret can only contain letters, numbers, - and _. Other characters were removed, so the saved secret is different from what you typed. Use a secret made only of those characters, and put the same value in Vercel.' );
+		}
+		if ( '' !== $new['revalidate_secret'] && strlen( $new['revalidate_secret'] ) < 16 ) {
+			$notices[] = array( 'warning', 'The shared secret is shorter than 16 characters, so the website connection is switched off. Use at least 16.' );
+		}
 		update_option( 'quciki_settings', $new, false );
-		quciki_mark_dirty();
-		$notice = 'Settings saved.';
+		$notices[] = array( 'success', 'Settings saved.' );
+		// Always check the connection after saving, or when the Test button was used.
+		$notices[] = quciki_test_connection();
 	}
 	$s = quciki_settings();
 	echo '<div class="wrap quciki"><h1>Quciki settings</h1>';
-	if ( $notice ) {
-		echo '<div class="notice notice-success"><p>' . esc_html( $notice ) . '</p></div>';
+	foreach ( $notices as $n ) {
+		printf( '<div class="notice notice-%s"><p>%s</p></div>', esc_attr( $n[0] ), esc_html( $n[1] ) );
 	}
 	echo '<form method="post">';
 	wp_nonce_field( 'quciki_save_settings', 'quciki_settings_nonce' );
 	echo '<h2>Connection to the website</h2><table class="form-table" role="presentation">';
 	quciki_setting_row( 'frontend_url', 'Website URL', $s, 'The address of the public website, for example https://quciki.vercel.app (no trailing slash). WordPress calls it to refresh pages and open previews.' );
-	quciki_setting_row( 'revalidate_secret', 'Shared secret', $s, 'At least 16 letters and numbers. Must equal REVALIDATE_SECRET in the website settings (Vercel). Keep it private.' );
+	quciki_setting_row( 'revalidate_secret', 'Shared secret', $s, '16 or more characters, using only letters, numbers, - and _ (other characters are removed). Must equal REVALIDATE_SECRET in the website settings (Vercel). Keep it private.' );
 	echo '</table><h2>Public site settings</h2><p>These values are sent to the website and are public. Do not enter anything secret.</p><table class="form-table" role="presentation">';
 	quciki_setting_row( 'contact_email', 'Contact email', $s, 'Shown on the Contact page and in the footer.' );
 	quciki_setting_row( 'adsense_client', 'AdSense publisher ID', $s, 'ca-pub-0000000000000000. Leave empty until AdSense approves the site.' );
@@ -500,7 +538,7 @@ function quciki_settings_page() {
 	quciki_setting_row( 'notify_email', 'Email me about new messages', $s, 'Optional. Leave empty for no emails; messages are always saved under Quciki > Messages.' );
 	quciki_setting_row( 'review_months', 'Review cycle (months)', $s, 'Pages with a review sign-off are flagged on the dashboard when older than this.' );
 	echo '</table>';
-	submit_button( 'Save settings' );
+	submit_button( 'Save settings and test connection' );
 	echo '</form></div>';
 }
 

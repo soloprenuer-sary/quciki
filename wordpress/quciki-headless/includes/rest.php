@@ -51,7 +51,8 @@ function quciki_guide_row( $p ) {
 
 function quciki_guide_seo( $p ) {
 	$slug = quciki_guide_slug( $p->ID );
-	$seo  = array(
+	// Our own box (used when Yoast / Rank Math is not installed), overridden field by field by the SEO plugin.
+	$seo = array(
 		'path'        => '/guides/' . $slug,
 		'title'       => quciki_meta( $p->ID, 'seo_title' ),
 		'description' => quciki_meta( $p->ID, 'seo_description' ),
@@ -59,6 +60,13 @@ function quciki_guide_seo( $p ) {
 		'og_image'    => quciki_meta( $p->ID, 'seo_og_image' ),
 		'noindex'     => '1' === quciki_meta( $p->ID, 'seo_noindex' ),
 	);
+	foreach ( quciki_plugin_seo_for_guide( $p ) as $k => $v ) {
+		if ( 'noindex' === $k ) {
+			$seo['noindex'] = $seo['noindex'] || $v;
+		} elseif ( '' !== (string) $v ) {
+			$seo[ $k ] = (string) $v;
+		}
+	}
 	if ( '' === $slug || ( '' === $seo['title'] && '' === $seo['description'] && '' === $seo['canonical'] && '' === $seo['og_image'] && ! $seo['noindex'] ) ) {
 		return null;
 	}

@@ -96,7 +96,10 @@ add_action( 'add_meta_boxes', 'quciki_add_meta_boxes' );
 function quciki_add_meta_boxes() {
 	add_meta_box( 'qk_guide_box', 'Guide details', 'quciki_box_guide', 'qk_guide', 'side', 'high' );
 	add_meta_box( 'qk_guide_preview', 'Preview', 'quciki_box_guide_preview', 'qk_guide', 'side', 'high' );
-	add_meta_box( 'qk_guide_seo', 'Search appearance', 'quciki_box_guide_seo', 'qk_guide', 'normal', 'default' );
+	// With Yoast SEO or Rank Math active, their box is used for guides instead.
+	if ( '' === quciki_seo_plugin() ) {
+		add_meta_box( 'qk_guide_seo', 'Search appearance', 'quciki_box_guide_seo', 'qk_guide', 'normal', 'default' );
+	}
 	add_meta_box( 'qk_redirect_box', 'Redirect', 'quciki_box_redirect', 'qk_redirect', 'normal', 'high' );
 }
 
@@ -135,6 +138,7 @@ function quciki_box_guide_preview( $post ) {
 }
 
 function quciki_box_guide_seo( $post ) {
+	echo '<input type="hidden" name="qk_seo_present" value="1">';
 	quciki_input( $post->ID, 'seo_title', 'Search title', 'About 60 characters or fewer. Empty uses the guide title.' );
 	printf(
 		'<p><label for="qk_seo_description"><strong>Meta description</strong></label><br><textarea class="widefat" rows="3" id="qk_seo_description" name="qk_seo_description">%s</textarea><span class="description">About 150 to 160 characters. Empty uses the excerpt.</span></p>',
@@ -181,11 +185,14 @@ function quciki_save_post( $post_id, $post ) {
 		$valid = wp_list_pluck( quciki_schema()['calculators'], 'slug' );
 		quciki_set_meta( $post_id, 'calculator_slug', in_array( $calc, $valid, true ) ? $calc : '' );
 
-		quciki_set_meta( $post_id, 'seo_title', quciki_mb_cut( sanitize_text_field( quciki_post_value( 'qk_seo_title' ) ), 200 ) );
-		quciki_set_meta( $post_id, 'seo_description', quciki_mb_cut( sanitize_textarea_field( quciki_post_value( 'qk_seo_description' ) ), 400 ) );
-		quciki_set_meta( $post_id, 'seo_canonical', quciki_clean_target( quciki_post_value( 'qk_seo_canonical' ) ) );
-		quciki_set_meta( $post_id, 'seo_og_image', quciki_clean_target( quciki_post_value( 'qk_seo_og_image' ) ) );
-		quciki_set_meta( $post_id, 'seo_noindex', '1' === quciki_post_value( 'qk_seo_noindex' ) ? '1' : '' );
+		// Only when our own SEO box was on the page (it is hidden while Yoast or Rank Math is active).
+		if ( '1' === quciki_post_value( 'qk_seo_present' ) ) {
+			quciki_set_meta( $post_id, 'seo_title', quciki_mb_cut( sanitize_text_field( quciki_post_value( 'qk_seo_title' ) ), 200 ) );
+			quciki_set_meta( $post_id, 'seo_description', quciki_mb_cut( sanitize_textarea_field( quciki_post_value( 'qk_seo_description' ) ), 400 ) );
+			quciki_set_meta( $post_id, 'seo_canonical', quciki_clean_target( quciki_post_value( 'qk_seo_canonical' ) ) );
+			quciki_set_meta( $post_id, 'seo_og_image', quciki_clean_target( quciki_post_value( 'qk_seo_og_image' ) ) );
+			quciki_set_meta( $post_id, 'seo_noindex', '1' === quciki_post_value( 'qk_seo_noindex' ) ? '1' : '' );
+		}
 	} else {
 		quciki_set_meta( $post_id, 'source', quciki_clean_path( quciki_post_value( 'qk_source' ) ) );
 		quciki_set_meta( $post_id, 'destination', quciki_clean_target( quciki_post_value( 'qk_destination' ) ) );

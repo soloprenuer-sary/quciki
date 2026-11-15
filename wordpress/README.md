@@ -12,7 +12,7 @@ when you publish.
 3. Plugins > Add New > Upload Plugin > `quciki-headless.zip` > Activate.
 4. **Quciki > Settings**:
    - **Website URL**: your Vercel address, for example `https://quciki.vercel.app` (no trailing slash).
-   - **Shared secret**: random letters and numbers, 16 or more. Use the same value as `REVALIDATE_SECRET` in Vercel.
+   - **Shared secret**: 16 or more characters, using ONLY letters, numbers, `-` and `_` (WordPress removes anything else, which would make it differ from Vercel). Use exactly the same value as `REVALIDATE_SECRET` in Vercel.
    - Contact email, AdSense IDs and Search Console code (public values).
    - Optional: "Email me about new messages".
 5. In Vercel add `WORDPRESS_URL=https://tool.akrinity.in` and `REVALIDATE_SECRET`, then redeploy.
@@ -28,6 +28,24 @@ when you publish.
 - Turn on automatic WordPress and plugin updates and Hostinger backups.
 - Use strong passwords and two-step login for every account.
 - Hide the default login if you can (a security plugin), and delete unused plugins and themes.
+
+**After saving Settings, WordPress tests the connection** and tells you in plain words if the website accepted the
+secret, rejected it, or could not be reached. If forms say "Could not save", open Settings and save again to see why.
+
+## Yoast SEO or Rank Math
+
+You can install either one. They work like this here:
+
+- **Guides**: the Yoast / Rank Math box (focus keyword, analysis, title, description, canonical, social image, noindex)
+  appears on guides and what you save there is sent to the website. If neither plugin is installed, a simple
+  "Search appearance" box is shown instead.
+- **All other pages** (Home, About, calculators, categories, legal pages): these are not WordPress posts, so the SEO
+  plugins cannot see them. Use the **Search appearance (SEO)** section on each Quciki page editor.
+- The public website is built by Next.js, which creates its own sitemap, robots.txt and structured data. The SEO plugins'
+  sitemaps, schema and redirect modules only affect WordPress itself (which is set to noindex), so you can switch them off.
+  Manage redirects under Quciki > Redirects.
+- Title variables such as `%%sitename%%` (Yoast) or `%sitename%` (Rank Math) are filled in with the site name from
+  Quciki > Pages and text > Site-wide text.
 
 ## Day to day
 

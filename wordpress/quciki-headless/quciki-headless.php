@@ -21,6 +21,7 @@ require_once QUCIKI_DIR . 'includes/entries.php';
 require_once QUCIKI_DIR . 'includes/preview.php';
 require_once QUCIKI_DIR . 'includes/admin.php';
 require_once QUCIKI_DIR . 'includes/content-types.php';
+require_once QUCIKI_DIR . 'includes/seo-plugins.php';
 require_once QUCIKI_DIR . 'includes/forms.php';
 require_once QUCIKI_DIR . 'includes/rest.php';
 require_once QUCIKI_DIR . 'includes/notify.php';
