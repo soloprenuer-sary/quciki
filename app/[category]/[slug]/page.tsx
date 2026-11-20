@@ -156,12 +156,12 @@ export default async function CalculatorPage({ params }: PageProps<"/[category]/
         </ul>
 
         <h2>{p.faqHeading}</h2>
-        <div className="space-y-3">
+        <div className="space-y-5">
           {c.faqs.map((f) => (
-            <details key={f.q} className="rounded-xl border border-line bg-surface p-4">
-              <summary className="cursor-pointer font-semibold">{f.q}</summary>
-              <p className="!mb-0">{f.a}</p>
-            </details>
+            <div key={f.q}>
+              <h3 className="!mb-1 text-lg font-semibold">{f.q}</h3>
+              <p className="!mt-0">{f.a}</p>
+            </div>
           ))}
         </div>
 
